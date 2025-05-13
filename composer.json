@@ -1,0 +1,9 @@
+{
+  "autoload": {
+    "psr-4": {
+      "Core\\": "core/",
+      "Config\\": "config/",
+      "Src\\": "src/"
+    }
+  }
+}

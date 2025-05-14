@@ -85,7 +85,23 @@ class App
                 $this->response->json($result ?? []);
             }
         } elseif (is_array($action) && count($action) >= 2) {
-            [$controllerClass, $method] = $action;
+            [$controllerClass, $methodName] = $action;
+
+            // Check if the controller class exists
+            if (!class_exists($controllerClass)) {
+                $this->response->setStatusCode(404);
+                $this->response->json(['error' => "Controller class '{$controllerClass}' not found"]);
+                return;
+            }
+
+            $controller = new $controllerClass();
+
+            // Check if the method exists in the controller
+            if (!method_exists($controller, $methodName)) {
+                $this->response->setStatusCode(404);
+                $this->response->json(['error' => "Method '{$methodName}' not found in controller '{$controllerClass}'"]);
+                return;
+            }
 
             // Check for middleware
             if (isset($action[2]) && is_array($action[2])) {
@@ -97,8 +113,7 @@ class App
                 }
             }
 
-            $controller = new $controllerClass();
-            $result = $controller->$method($this->request, $this->response);
+            $result = $controller->$methodName($this->request, $this->response);
 
             if (!$this->response->isSent()) {
                 $this->response->json($result ?? []);

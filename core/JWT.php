@@ -4,12 +4,21 @@ namespace Core;
 
 class JWT
 {
-    private static $secret = 'your_secret_key_here';
-
+    private static $secret;
+    private static $expiration_time;
+    private static function init()
+    {
+        if (self::$secret === null) {
+            $config_jwt = require base_path('config/jwt.php');
+            self::$secret = $config_jwt['secret_key'];
+            self::$expiration_time = $config_jwt['expiration_time'];
+        }
+    }
     public static function generate(array $payload): string
     {
+        self::init();
         // Set expiration time (5 minutes from now)
-        $payload['exp'] = time() + 300; // 5 minutes = 300 seconds
+        $payload['exp'] = time() + self::$expiration_time; // 5 minutes = 300 seconds
 
         // Create JWT parts
         $header = self::base64UrlEncode(json_encode([
@@ -28,6 +37,7 @@ class JWT
 
     public static function validate(string $token): ?array
     {
+        self::init();
         $parts = explode('.', $token);
 
         if (count($parts) !== 3) {

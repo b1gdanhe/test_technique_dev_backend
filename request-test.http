@@ -1,2 +1,58 @@
-GET http://localhost:8000/api/user HTTP/1.1
-content-type: application/json
+### 1. Register - Success (à modifier avec une nouvelle adresse email)
+POST http://localhost:8000/api/register
+Content-Type: application/json
+
+{
+    "email": "newuser@example1.com",
+    "password": "123456"
+}
+
+### 2. Register - Conflict Error (email déjà existant)
+POST http://localhost:8000/api/register
+Content-Type: application/json
+
+{
+    "email": "bigdanhe@gmail.com",
+    "password": "123456"
+}
+
+### 3. Register - Bad Request Error (champs manquants)
+POST http://localhost:8000/api/register
+Content-Type: application/json
+
+{
+    "email": "bigdanhe@gmail.com"
+}
+
+### 4. Login - Success
+POST http://localhost:8000/api/login
+Content-Type: application/json
+
+{
+    "email": "bigdanhe@gmail.com",
+    "password": "123456"
+}
+
+### 5. Get User Info - Unauthorized (pas de token)
+GET http://localhost:8000/api/user
+Content-Type: application/json
+
+### 6. Get User Info - Invalid Token
+GET http://localhost:8000/api/user
+Content-Type: application/json
+X-AUTH-TOKEN: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJlbWFpbCI6ImJpZ2RhbmhlQGdtYWlsLmNvbSIsImlhdCI6MTc0NzE3OTM3MSwiZXhwIjoxNzQ3MTc5NjcxfQ.WIqULrG9P4FoyWYhRwK75sDJ78vAUHGWthhBtbsykQc
+
+### 7. Get User Info - Success (remplacer par un token valide)
+GET http://localhost:8000/api/user
+Content-Type: application/json
+X-AUTH-TOKEN: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJlbWFpbCI6ImJpZ2RhbmhlQGdtYWlsLmNvbSIsImlhdCI6MTc0NzIxNTMxMywiZXhwIjoxNzQ3MjE1NjEzfQ.eLHumGQFgkQ2uT3_LHMWjjt-RyNKm9XhyeLAqvj-mMY
+
+### 8. Update User Profile - Success (remplacer par un token valide)
+PUT http://localhost:8000/api/user/profile
+Content-Type: application/json
+X-AUTH-TOKEN: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJlbWFpbCI6ImJpZ2RhbmhlQGdtYWlsLmNvbSIsImlhdCI6MTc0NzIxNTMxMywiZXhwIjoxNzQ3MjE1NjEzfQ.eLHumGQFgkQ2uT3_LHMWjjt-RyNKm9XhyeLAqvj-mMY
+
+{
+    "firstname": "Elie",
+    "lastname": "DANHIN"
+}

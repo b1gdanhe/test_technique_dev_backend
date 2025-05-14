@@ -1,160 +1,282 @@
-# API d'Authentification JWT en PHP
+# API d'Authentification JWT
 
-Une API d'authentification simple utilisant les tokens JWT (JSON Web Tokens), développée en PHP pur avec une architecture MVC.
+Ce projet est une API d'authentification basée sur JSON Web Tokens (JWT), développée en PHP 8.3 avec MySQL 8.0, suivant une architecture MVC sans utilisation de frameworks fullstack.
+
+## Table des matières
+
+- [Prérequis](#prérequis)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Lancement](#lancement)
+- [Documentation de l'API](#documentation-de-lapi)
+  - [Inscription](#1-inscription)
+  - [Connexion](#2-connexion)
+  - [Consultation des informations utilisateur](#3-consultation-des-informations-utilisateur)
+  - [Mise à jour des informations personnelles](#4-mise-à-jour-des-informations-personnelles)
+- [Structure du projet](#structure-du-projet)
+- [Sécurité](#sécurité)
 
 ## Prérequis
 
 - PHP 8.3 ou supérieur
-- MySQL 8.0 ou supérieur
+- MySQL 8.0
 - Composer
-- Serveur web (Apache ou Nginx)
 
 ## Installation
 
 1. Clonez ce dépôt :
-   ```bash
-   git clone https://github.com/votre-nom/jwt-auth-api.git
-   cd jwt-auth-api
-   ```
+```bash
+git clone git@github.com:b1gdanhe/test_technique_dev_backend.git
+cd test_technique_dev_backend
+```
 
 2. Installez les dépendances via Composer :
-   ```bash
-   composer install
-   ```
+```bash
+composer install
+```
 
-3. Configurez votre base de données :
-   - Créez une base de données MySQL
-   - Modifiez le fichier `config/config.php` avec vos informations de connexion
-   - Exécutez le script SQL contenu dans `database.sql` pour créer les tables nécessaires
+3. Créez une base de données MySQL pour le projet.
 
-4. Configurez votre serveur web pour pointer vers le dossier du projet, avec le support de la réécriture d'URL.
+## Configuration
+
+1. Configurez la connexion à la base de données dans `config/database.php` :
+```php
+<?php
+return [
+    'db_system' => 'mysql',
+    'db_name' => 'test_technique',
+    'db_host' => 'localhost',
+    'db_username' => 'root',
+    'db_password' => 'Big@big1'
+];
+```
+
+2. Configurez les paramètres JWT dans `config/jwt.php` :
+```php
+<?php
+return [
+    'secret_key' => 'votre_clé_secrète', // À remplacer par une clé forte
+    'expiration_time' => 300 // Durée de validité du token en secondes (5 minutes)
+];
+```
+
+3. Créez les tables nécessaires en exécutant le script :
+```bash
+php core/create_tables.php
+```
+
+## Lancement
+
+Pour lancer l'application en local :
+
+```bash
+cd public
+php -S localhost:8000 
+ou directement dans à la racine du projet
+php -S localhost:8000 -t public 
+```
+
+L'API sera accessible à l'adresse : http://localhost:8000
 
 ## Documentation de l'API
 
-### Endpoints
+Toutes les requêtes et réponses sont au format JSON.
 
-#### 1. Inscription
+### 1. Inscription
 
-- **URL** : `/api/auth/register`
+Permet à un utilisateur de s'inscrire en fournissant une adresse email et un mot de passe.
+
+- **URL** : `/api/register`
 - **Méthode** : `POST`
+- **En-têtes** : `Content-Type: application/json`
 - **Corps de la requête** :
-  ```json
-  {
+```json
+{
     "email": "utilisateur@exemple.com",
-    "password": "motdepasse",
-    "firstname": "John",
-    "lastname": "Doe"
-  }
-  ```
-- **Réponse de succès** :
-  ```json
-  {
+    "password": "mot_de_passe"
+}
+```
+
+#### Réponses
+
+**Succès (201 Created)**
+```json
+{
     "status": "success",
-    "message": "Inscription réussie",
-    "data": {
-      "id": 1
-    }
-  }
-  ```
+    "message": "Utilisateur créé avec succès"
+}
+```
 
-#### 2. Connexion
+**Erreur - Email déjà utilisé (409 Conflict)**
+```json
+{
+    "status": "error",
+    "message": "Cet email est déjà utilisé"
+}
+```
 
-- **URL** : `/api/auth/login`
+**Erreur - Données invalides (400 Bad Request)**
+```json
+{
+    "status": "error",
+    "message": "Email et mot de passe requis"
+}
+```
+
+### 2. Connexion
+
+Permet à un utilisateur de se connecter et d'obtenir un token JWT valide pour 5 minutes.
+
+- **URL** : `/api/login`
 - **Méthode** : `POST`
+- **En-têtes** : `Content-Type: application/json`
 - **Corps de la requête** :
-  ```json
-  {
+```json
+{
     "email": "utilisateur@exemple.com",
-    "password": "motdepasse"
-  }
-  ```
-- **Réponse de succès** :
-  ```json
-  {
+    "password": "mot_de_passe"
+}
+```
+
+#### Réponses
+
+**Succès (200 OK)**
+```json
+{
     "status": "success",
-    "message": "Connexion réussie",
-    "data": {
-      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      "expires_in": 300
-    }
-  }
-  ```
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
 
-#### 3. Consultation du profil
+**Erreur - Identifiants invalides (401 Unauthorized)**
+```json
+{
+    "status": "error",
+    "message": "Email ou mot de passe incorrect"
+}
+```
 
-- **URL** : `/api/user/profile`
+### 3. Consultation des informations utilisateur
+
+Permet à l'utilisateur authentifié de consulter ses informations personnelles.
+
+- **URL** : `/api/user`
 - **Méthode** : `GET`
-- **En-têtes** :
-  ```
-  X-AUTH-TOKEN: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-  ```
-- **Réponse de succès** :
-  ```json
-  {
-    "status": "success",
-    "message": "Profil récupéré avec succès",
-    "data": {
-      "id": 1,
-      "email": "utilisateur@exemple.com",
-      "firstname": "John",
-      "lastname": "Doe",
-      "created_at": "2023-05-13 10:00:00",
-      "updated_at": "2023-05-13 10:00:00"
-    }
-  }
-  ```
+- **En-têtes** : 
+  - `Content-Type: application/json`
+  - `X-AUTH-TOKEN: votre_token_jwt`
 
-#### 4. Mise à jour du profil
+#### Réponses
+
+**Succès (200 OK)**
+```json
+{
+    "status": "success",
+    "user": {
+        "email": "utilisateur@exemple.com",
+        "firstname": "Prénom",
+        "lastname": "Nom"
+    }
+}
+```
+
+**Erreur - Non authentifié (401 Unauthorized)**
+```json
+{
+    "status": "error",
+    "message": "Non authentifié"
+}
+```
+
+**Erreur - Token invalide ou expiré (401 Unauthorized)**
+```json
+{
+    "status": "error",
+    "message": "Token invalide ou expiré"
+}
+```
+
+### 4. Mise à jour des informations personnelles
+
+Permet à l'utilisateur authentifié de mettre à jour son nom et prénom.
 
 - **URL** : `/api/user/profile`
 - **Méthode** : `PUT`
-- **En-têtes** :
-  ```
-  X-AUTH-TOKEN: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-  ```
+- **En-têtes** : 
+  - `Content-Type: application/json`
+  - `X-AUTH-TOKEN: votre_token_jwt`
 - **Corps de la requête** :
-  ```json
-  {
-    "firstname": "John Updated",
-    "lastname": "Doe Updated"
-  }
-  ```
-- **Réponse de succès** :
-  ```json
-  {
+```json
+{
+    "firstname": "Nouveau Prénom",
+    "lastname": "Nouveau Nom"
+}
+```
+
+#### Réponses
+
+**Succès (200 OK)**
+```json
+{
     "status": "success",
     "message": "Profil mis à jour avec succès",
-    "data": {
-      "id": 1,
-      "email": "utilisateur@exemple.com",
-      "firstname": "John Updated",
-      "lastname": "Doe Updated",
-      "created_at": "2023-05-13 10:00:00",
-      "updated_at": "2023-05-13 11:00:00"
+    "user": {
+        "email": "utilisateur@exemple.com",
+        "firstname": "Nouveau Prénom",
+        "lastname": "Nouveau Nom"
     }
-  }
-  ```
+}
+```
 
-### Codes de statut HTTP
+**Erreur - Non authentifié (401 Unauthorized)**
+```json
+{
+    "status": "error",
+    "message": "Non authentifié"
+}
+```
 
-- `200 OK` : Requête traitée avec succès
-- `201 Created` : Ressource créée avec succès
-- `400 Bad Request` : La requête n'a pas pu être traitée à cause d'un problème client
-- `401 Unauthorized` : Authentification requise ou échec de l'authentification
-- `404 Not Found` : Ressource non trouvée
-- `409 Conflict` : Conflit avec l'état actuel de la ressource
-- `500 Internal Server Error` : Erreur interne du serveur
+**Erreur - Token invalide ou expiré (401 Unauthorized)**
+```json
+{
+    "status": "error",
+    "message": "Token invalide ou expiré"
+}
+```
 
-## Architecture du projet
+## Structure du projet
 
-Ce projet suit une architecture MVC (Modèle-Vue-Contrôleur) :
-
-- **Modèles** : Contiennent la logique métier et interagissent avec la base de données
-- **Contrôleurs** : Gèrent les requêtes HTTP et appellent les modèles appropriés
-- **Vues** : Dans cette API REST, les "vues" sont les réponses JSON
+```
+├── README.md
+├── composer.json
+├── composer.lock
+├── config
+│   ├── database.php
+│   └── jwt.php
+├── core
+│   ├── App.php
+│   ├── Database.php
+│   ├── JWT.php
+│   ├── Request.php
+│   ├── Response.php
+│   ├── create_tables.php
+│   └── helpers.php
+├── public
+│   └── index.php
+├── request-test.http
+├── src
+│   ├── controller
+│   │   ├── AuthController.php
+│   │   └── UserController.php
+│   ├── middleware
+│   │   └── AuthMiddleware.php
+│   ├── model
+│   │   └── User.php
+```
 
 ## Sécurité
 
-- Les mots de passe sont hachés avec la fonction `password_hash()` de PHP
-- Les tokens JWT sont valables pendant 5 minutes
-- Toutes les entrées utilisateur sont validées et filtrées
+- Les mots de passe sont hachés avant d'être stockés en base de données
+- L'authentification est gérée via JWT avec un délai d'expiration de 5 minutes
+- Toutes les requêtes d'API nécessitant une authentification sont protégées par un middleware de vérification de token
+- Les validations d'entrée sont effectuées pour prévenir les injections SQL et autres vulnérabilités

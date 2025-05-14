@@ -1,5 +1,8 @@
 {
   "autoload": {
+    "files": [
+      "core/helpers.php"
+    ],
     "psr-4": {
       "Core\\": "core/",
       "Config\\": "config/",

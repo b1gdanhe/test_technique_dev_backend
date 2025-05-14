@@ -12,7 +12,7 @@ class App
         "PATCH" => [],
         "DELETE" => [],
     ];
-    
+
     private $request;
     private $response;
 
@@ -70,7 +70,7 @@ class App
     {
         $method = $this->request->getMethod();
         $uri = $this->request->getUri();
-        
+
         if (!isset(self::$routes[$method][$uri])) {
             $this->response->setStatusCode(404);
             $this->response->json(['error' => 'Route not found']);
@@ -78,15 +78,15 @@ class App
         }
 
         $action = self::$routes[$method][$uri];
-        
+
         if (is_callable($action)) {
             $result = $action($this->request, $this->response);
             if (!$this->response->isSent()) {
                 $this->response->json($result ?? []);
             }
-        } elseif (is_array($action) && count($action) === 2) {
+        } elseif (is_array($action) && count($action) >= 2) {
             [$controllerClass, $method] = $action;
-            
+
             // Check for middleware
             if (isset($action[2]) && is_array($action[2])) {
                 foreach ($action[2] as $middleware) {
@@ -96,10 +96,10 @@ class App
                     }
                 }
             }
-            
+
             $controller = new $controllerClass();
             $result = $controller->$method($this->request, $this->response);
-            
+
             if (!$this->response->isSent()) {
                 $this->response->json($result ?? []);
             }

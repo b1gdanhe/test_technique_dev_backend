@@ -15,6 +15,7 @@ Ce projet est une API d'authentification basée sur JSON Web Tokens (JWT), déve
   - [Mise à jour des informations personnelles](#4-mise-à-jour-des-informations-personnelles)
 - [Structure du projet](#structure-du-projet)
 - [Sécurité](#sécurité)
+- [Accès et Documentation](#accès-et-documentation)
 
 ## Prérequis
 
@@ -265,12 +266,12 @@ Permet à l'utilisateur authentifié de mettre à jour son nom et prénom.
 │   └── index.php
 ├── request-test.http
 ├── src
-│   ├── controller
+│   ├── Controller
 │   │   ├── AuthController.php
 │   │   └── UserController.php
-│   ├── middleware
+│   ├── Middleware
 │   │   └── AuthMiddleware.php
-│   ├── model
+│   ├── Model
 │   │   └── User.php
 ```
 
@@ -280,3 +281,13 @@ Permet à l'utilisateur authentifié de mettre à jour son nom et prénom.
 - L'authentification est gérée via JWT avec un délai d'expiration de 5 minutes
 - Toutes les requêtes d'API nécessitant une authentification sont protégées par un middleware de vérification de token
 - Les validations d'entrée sont effectuées pour prévenir les injections SQL et autres vulnérabilités
+
+## Accès et Documentation
+
+### Instance en production
+L'API est déployée et accessible publiquement à l'adresse :  
+🔗 [https://test-technique.bigdanhe.com/](https://test-technique.bigdanhe.com/)
+
+### Documentation interactive
+Pour explorer l'API avec des exemples complets :  
+📚 [Documentation Postman complète](https://documenter.getpostman.com/view/18506571/2sB2qUoQSn)
